@@ -18,9 +18,10 @@ type Game struct {
 }
 
 type Ball struct {
-	x, y  float64
-	speed uint8
-	image *ebiten.Image
+	x, y   float64
+	dx, dy float64
+	speed  float64
+	image  *ebiten.Image
 }
 
 func (ball *Ball) Draw(screen *ebiten.Image) {
@@ -48,6 +49,10 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
 		g.bat.x = g.bat.x + float64(g.bat.speed)
 	}
+
+	g.ball.x += g.ball.dx * g.ball.speed
+
+	g.ball.y += g.ball.dy * float64(g.ball.speed)
 	return nil
 }
 
@@ -81,7 +86,9 @@ func main() {
 		image: ballImage,
 		x:     float64(WIDTH) / 2,
 		y:     float64(HEIGHT) * 0.2,
-		speed: 4,
+		speed: 2,
+		dx:    1,
+		dy:    1,
 	}
 	game := &Game{
 		ball: ball,
