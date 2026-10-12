@@ -32,8 +32,9 @@ func (ball *Ball) Draw(screen *ebiten.Image) {
 
 type Bat struct {
 	x, y  float64
-	speed uint8
+	speed float64
 	image *ebiten.Image
+	width float64
 }
 
 func (bat *Bat) Draw(screen *ebiten.Image) {
@@ -42,14 +43,17 @@ func (bat *Bat) Draw(screen *ebiten.Image) {
 	screen.DrawImage(bat.image, op)
 }
 
-func (g *Game) Update() error {
-	if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
+func (bat *Bat) Update(g *Game) {
+	if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) && g.bat.x-float64(g.bat.speed) >= 0 {
 		g.bat.x = g.bat.x - float64(g.bat.speed)
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
+	if ebiten.IsKeyPressed(ebiten.KeyArrowRight) && g.bat.x+g.bat.speed <= float64(WIDTH)-g.bat.width {
 		g.bat.x = g.bat.x + float64(g.bat.speed)
 	}
+}
 
+func (g *Game) Update() error {
+	g.bat.Update(g)
 	g.ball.x += g.ball.dx * g.ball.speed
 
 	g.ball.y += g.ball.dy * float64(g.ball.speed)
@@ -80,6 +84,7 @@ func main() {
 		x:     float64(WIDTH) / 2.5,
 		y:     float64(HEIGHT) * 0.8,
 		speed: 4,
+		width: float64(batImage.Bounds().Dx()),
 	}
 
 	ball := Ball{
