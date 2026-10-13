@@ -22,6 +22,8 @@ type Ball struct {
 	dx, dy float64
 	speed  float64
 	image  *ebiten.Image
+	width  float64
+	height float64
 }
 
 func (ball *Ball) Draw(screen *ebiten.Image) {
@@ -54,9 +56,32 @@ func (bat *Bat) Update(g *Game) {
 
 func (g *Game) Update() error {
 	g.bat.Update(g)
+	ballPreviousBottomY := g.ball.y + g.ball.height
 	g.ball.x += g.ball.dx * g.ball.speed
 
-	g.ball.y += g.ball.dy * float64(g.ball.speed)
+	g.ball.y += g.ball.dy * g.ball.speed
+
+	if g.ball.x >= float64(WIDTH)-g.ball.width {
+		g.ball.x = float64(WIDTH) - g.ball.width
+		g.ball.dx *= -1
+	}
+
+	if g.ball.x <= 0 {
+		g.ball.x = 0
+		g.ball.dx *= -1
+	}
+
+	if ballPreviousBottomY <= g.bat.y &&
+		g.ball.y+g.ball.height >= g.bat.y &&
+		g.ball.x+g.ball.width > g.bat.x &&
+		g.ball.x < g.bat.x+g.bat.width {
+		g.ball.dy *= -1
+	}
+
+	if g.ball.y <= 0 {
+		g.ball.dy *= -1
+	}
+
 	return nil
 }
 
@@ -83,17 +108,19 @@ func main() {
 		image: batImage,
 		x:     float64(WIDTH) / 2.5,
 		y:     float64(HEIGHT) * 0.8,
-		speed: 4,
+		speed: 8,
 		width: float64(batImage.Bounds().Dx()),
 	}
 
 	ball := Ball{
-		image: ballImage,
-		x:     float64(WIDTH) / 2,
-		y:     float64(HEIGHT) * 0.2,
-		speed: 2,
-		dx:    1,
-		dy:    1,
+		image:  ballImage,
+		x:      float64(WIDTH) / 2,
+		y:      float64(HEIGHT) * 0.2,
+		speed:  4,
+		dx:     -1,
+		dy:     1,
+		width:  float64(ballImage.Bounds().Dx()),
+		height: float64(ballImage.Bounds().Dy()),
 	}
 	game := &Game{
 		ball: ball,
